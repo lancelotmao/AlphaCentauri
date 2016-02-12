@@ -20,6 +20,11 @@ http.createServer(function (req, res) {
 	// get ci id
 	var ciId = parsedUrl.query.ci;
 
+	var type = parsedUrl.query.type;
+	if (type == null) {
+    	type = 'zip';
+    }
+
 	var baseFolder = 'packages/' + projectId;
 
     switch (pathname) {
@@ -39,9 +44,9 @@ http.createServer(function (req, res) {
 
 		    var filePath;
 		    if (ciId !== undefined) {
-		    	filePath = baseFolder + '/ci/' + ciId + '.zip';	
+		    	filePath = baseFolder + '/ci/' + ciId + '.' + type;	
 		    } else {
-		    	filePath = baseFolder + '/release/' + projectId + '.zip';
+		    	filePath = baseFolder + '/release/' + projectId + '.' + type;
 		    }
 
 		    // delete file if exists already
@@ -98,10 +103,10 @@ http.createServer(function (req, res) {
 
     		case '/deploy':
 		    {
-		    	var src = baseFolder + '/ci/' + ciId + '.zip';
+		    	var src = baseFolder + '/ci/' + ciId + '.' + type;
 		    	if (fs.existsSync(src)) {
 		    		// finished = false;
-					var dst = baseFolder + '/release/' + projectId + '.zip';
+					var dst = baseFolder + '/release/' + projectId + '.' + type;
 			    	// delete file if exists already
 				    if (fs.existsSync(dst)) {
 					    fs.unlinkSync(dst);
@@ -131,9 +136,9 @@ http.createServer(function (req, res) {
 		    	finished = false;
 		    	var filename;
 		    	if (ciId != null) {
-					filename = baseFolder + '/ci/' + ciId + '.zip';
+					filename = baseFolder + '/ci/' + ciId + '.' + type;
 		    	} else {
-		    		filename = baseFolder + '/release/' + projectId + '.zip';
+		    		filename = baseFolder + '/release/' + projectId + '.' + type;
 		    	}
 		    	
 		    	fs.readFile(filename, "binary", function(err, file) {
