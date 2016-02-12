@@ -1,0 +1,16 @@
+<html>
+    <script>
+        var updateMsg = JSON.stringify({
+            method : 'payload',
+            user : 'test1',
+            project : '47389279843',
+            name : 'Home.pg', // page name
+            data : '<Button &="${t : \'abc\'}"> <![CDATA[var x = 1;]]></Button>'
+        });
+
+        var s = new WebSocket("ws://10.75.69.49:8080", "play_protocol");
+        s.onopen = function (event) {
+            s.send(updateMsg);
+        };
+    </script>
+</html>
