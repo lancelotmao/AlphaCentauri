@@ -4,9 +4,12 @@
 var http = require('http');
 var fs = require('fs');
 
+var HOST = '127.0.0.1';
+// var HOST = '10.75.69.49';
+
 var options = {
-    host: '127.0.0.1',
-    port: 10000,
+    host: HOST,
+    port: 8888,
     path: '/upload?projectId=216203276&ci=1',
     method: 'POST'
 };

@@ -131,4 +131,4 @@ function download(task) {
     }
 }
 
-client.connect('ws://' + HOST + ':10001/', 'play_protocol');
+client.connect('ws://' + HOST + ':8889/', 'play_protocol');

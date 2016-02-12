@@ -20,14 +20,14 @@ http.createServer(function (req, res) {
 	// get ci id
 	var ciId = parsedUrl.query.ci;
 
+	var baseFolder = 'packages/' + projectId;
+
     switch (pathname) {
     	case '/upload':
     	{
     		if (!fs.existsSync('packages')) {
 		    	fs.mkdirSync('packages');
 		    }
-
-		    var baseFolder = 'packages/' + projectId;
 
 		    // create folder if not exist
 		    if (!fs.existsSync(baseFolder)) {
@@ -85,7 +85,7 @@ http.createServer(function (req, res) {
     		case '/version':
     		{
     			finished = false;
-    			var path = projectId + '/release/' + configFile;
+    			var path = baseFolder + '/release/' + configFile;
     			var parser = new xml2js.Parser();
 				fs.readFile(path, function(err, data) {
 				    parser.parseString(data, function (err, result) {
@@ -98,10 +98,10 @@ http.createServer(function (req, res) {
 
     		case '/deploy':
 		    {
-		    	var src = projectId + '/ci/' + ciId + '.zip';
+		    	var src = baseFolder + '/ci/' + ciId + '.zip';
 		    	if (fs.existsSync(src)) {
 		    		// finished = false;
-					var dst = projectId + '/release/' + projectId + '.zip';
+					var dst = baseFolder + '/release/' + projectId + '.zip';
 			    	// delete file if exists already
 				    if (fs.existsSync(dst)) {
 					    fs.unlinkSync(dst);
@@ -115,7 +115,7 @@ http.createServer(function (req, res) {
 				    zipEntries.forEach(function(zipEntry) {
 				        if (zipEntry.name === configFile) {
 				            // console.log(zipEntry.toString('utf8'));
-				            zip.extractEntryTo(zipEntry, projectId + '/release/', false, true);
+				            zip.extractEntryTo(zipEntry, baseFolder + '/release/', false, true);
 				            msg = 'deploy success';
 				        }
 				    });
@@ -131,9 +131,9 @@ http.createServer(function (req, res) {
 		    	finished = false;
 		    	var filename;
 		    	if (ciId != null) {
-					filename = projectId + '/ci/' + ciId + '.zip';
+					filename = baseFolder + '/ci/' + ciId + '.zip';
 		    	} else {
-		    		filename = projectId + '/release/' + projectId + '.zip';
+		    		filename = baseFolder + '/release/' + projectId + '.zip';
 		    	}
 		    	
 		    	fs.readFile(filename, "binary", function(err, file) {
@@ -169,9 +169,9 @@ http.createServer(function (req, res) {
 	    	sendResponse(res, status, msg);
 		}
     });
-}).listen(10000);
+}).listen(8888);
 
-console.log("mCloud Package Manager http server listening at 10000");
+console.log("mCloud Package Manager http server listening at 8888");
 
 // start compiler server
 compiler.start();

@@ -78,8 +78,8 @@ wsServer.on('request', function(request) {
 });
 
 exports.start = function () {
-	server.listen(10001, function() {
-	    console.log('Packager Server is listening on port 10001');
+	server.listen(8889, function() {
+	    console.log('Packager Server is listening on port 8889');
 	});
 };
 
