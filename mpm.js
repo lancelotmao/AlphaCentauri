@@ -67,8 +67,7 @@ http.createServer(function (req, res) {
     req.on("data", function (postDataChunk) {
     	switch (parsedUrl.pathname) {
     		case "/upload":
-        	fs.appendFile(filePath, postDataChunk, function() {
-	        });
+        	fs.appendFileSync(filePath, postDataChunk);
 	        break;
         }
     });
@@ -82,7 +81,7 @@ http.createServer(function (req, res) {
     		case '/upload':
     		{
 				msg = 'Upload success';
-				if (ciId != null)
+				if (ciId != null && type === 'zip')
 					compiler.package({method : 'package', projectId : projectId, ciId : ciId});
 	        }
     		break;
