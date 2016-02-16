@@ -1,0 +1,6 @@
+framework module CameraBundle {
+  umbrella header "CameraBundle.h"
+
+  export *
+  module * { export * }
+}

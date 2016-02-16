@@ -1,0 +1,30 @@
+
+/* Class = "UIButton"; highlightedTitle = "提交"; ObjectID = "CjI-sr-4Tg"; */
+"CjI-sr-4Tg.highlightedTitle" = "提交";
+
+/* Class = "UIButton"; normalTitle = "提交"; ObjectID = "CjI-sr-4Tg"; */
+"CjI-sr-4Tg.normalTitle" = "提交";
+
+/* Class = "UINavigationItem"; title = "邮箱验证"; ObjectID = "GSN-Zk-aHl"; */
+"GSN-Zk-aHl.title" = "邮箱验证";
+
+/* Class = "UIButton"; normalTitle = "静态码验证"; ObjectID = "W8G-kp-nd1"; */
+"W8G-kp-nd1.normalTitle" = "身份识别码验证";
+
+/* Class = "UITextField"; placeholder = "请输入验证码"; ObjectID = "aOP-W7-kOa"; */
+"aOP-W7-kOa.placeholder" = "请输入验证码";
+
+/* Class = "UIButton"; normalTitle = "短信验证"; ObjectID = "dOI-pv-idN"; */
+"dOI-pv-idN.normalTitle" = "短信验证";
+
+/* Class = "UILabel"; text = "验证码"; ObjectID = "f6V-qX-rcY"; */
+"f6V-qX-rcY.text" = "验证码";
+
+/* Class = "UIButton"; normalTitle = "点击获取"; ObjectID = "ik3-E2-KIm"; */
+"ik3-E2-KIm.normalTitle" = "点击获取";
+
+/* Class = "UILabel"; text = "邮箱"; ObjectID = "ssE-k6-wnX"; */
+"ssE-k6-wnX.text" = "邮箱";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "vyt-5g-BTQ"; */
+"vyt-5g-BTQ.text" = "Label";

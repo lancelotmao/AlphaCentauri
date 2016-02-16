@@ -93,8 +93,13 @@ http.createServer(function (req, res) {
     			var parser = new xml2js.Parser();
 				fs.readFile(path, function(err, data) {
 				    parser.parseString(data, function (err, result) {
-				        var v = result['tns:Project']['$'].versionCode;
-				        sendResponse(res, 200, v);
+				    	console.log('version for ' + projectId + ': ');
+				    	if (result == null) {
+				    		sendResponse(res, 200, '-1');
+				    	} else {
+					        var v = result['tns:Project']['$'].versionCode;
+					        sendResponse(res, 200, v);
+					    }
 				    });
 				});
     		}

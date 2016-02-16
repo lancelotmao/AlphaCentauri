@@ -1,0 +1,6 @@
+framework module SignBundle {
+  umbrella header "SignBundle.h"
+
+  export *
+  module * { export * }
+}

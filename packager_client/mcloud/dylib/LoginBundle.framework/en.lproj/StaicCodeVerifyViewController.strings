@@ -1,0 +1,21 @@
+
+/* Class = "UITextField"; placeholder = "请输入身份识别码"; ObjectID = "eYe-EL-25X"; */
+"eYe-EL-25X.placeholder" = "Authentication code";
+
+/* Class = "UILabel"; text = "请在内网登录http://security.huawei.com/进行配置"; ObjectID = "mHb-38-asq"; */
+"mHb-38-asq.text" = "Go to http://security.huawei.com/ from intranet to configure your authentication code.";
+
+/* Class = "UIButton"; normalTitle = "提交"; ObjectID = "w4F-Gb-MG9"; */
+"w4F-Gb-MG9.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "身份识别码提示"; ObjectID = "whG-DO-8CP"; */
+"whG-DO-8CP.text" = "Note";
+
+/* Class = "UILabel"; text = "6-14位数字，字母（区分大小写）和特殊字符"; ObjectID = "xGw-nj-2JC"; */
+"xGw-nj-2JC.text" = "6-14 digits, letters (case-sensitive), and special characters";
+
+/* Class = "UINavigationItem"; title = "身份识别码验证"; ObjectID = "xTB-or-1Fy"; */
+"xTB-or-1Fy.title" = "Verify via auth code";
+
+/* Class = "UILabel"; text = "身份识别码"; ObjectID = "y08-g5-tYf"; */
+"y08-g5-tYf.text" = "Code";

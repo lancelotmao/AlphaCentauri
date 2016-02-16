@@ -1,0 +1,6 @@
+framework module MRuntime {
+  umbrella header "MRuntime.h"
+
+  export *
+  module * { export * }
+}

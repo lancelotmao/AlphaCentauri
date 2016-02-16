@@ -1,0 +1,6 @@
+framework module LBSBundle {
+  umbrella header "LBSBundle.h"
+
+  export *
+  module * { export * }
+}

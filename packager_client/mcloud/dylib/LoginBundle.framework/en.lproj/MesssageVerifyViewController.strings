@@ -1,0 +1,24 @@
+
+/* Class = "UIButton"; normalTitle = "静态码验证"; ObjectID = "AVW-0Q-lr7"; */
+"AVW-0Q-lr7.normalTitle" = "Verify via auth code";
+
+/* Class = "UILabel"; text = "手机号"; ObjectID = "CEW-N0-xCO"; */
+"CEW-N0-xCO.text" = "Mobile";
+
+/* Class = "UINavigationItem"; title = "短信验证"; ObjectID = "D3A-LY-93i"; */
+"D3A-LY-93i.title" = "Verify via SMS";
+
+/* Class = "UILabel"; text = "验证码"; ObjectID = "KvI-1i-F3r"; */
+"KvI-1i-F3r.text" = "Code";
+
+/* Class = "UIButton"; normalTitle = "点击获取"; ObjectID = "aKH-2Y-jXa"; */
+"aKH-2Y-jXa.normalTitle" = "Send";
+
+/* Class = "UIButton"; normalTitle = "提交"; ObjectID = "cFq-iF-dGJ"; */
+"cFq-iF-dGJ.normalTitle" = "Submit";
+
+/* Class = "UITextField"; placeholder = "请输入验证码"; ObjectID = "fa1-I5-GH5"; */
+"fa1-I5-GH5.placeholder" = "Code you received";
+
+/* Class = "UIButton"; normalTitle = "邮箱验证"; ObjectID = "sWI-dY-Nbf"; */
+"sWI-dY-Nbf.normalTitle" = "Verify via email";

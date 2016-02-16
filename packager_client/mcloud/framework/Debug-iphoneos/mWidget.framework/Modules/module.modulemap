@@ -1,0 +1,6 @@
+framework module mWidget {
+  umbrella header "mWidget.h"
+
+  export *
+  module * { export * }
+}
