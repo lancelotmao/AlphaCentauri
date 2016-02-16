@@ -13,6 +13,10 @@ var updateMsg = JSON.stringify({
     method : 'done'
 });
 
+if (!fs.existsSync('out')) {
+    fs.mkdirSync('out');
+}
+
 client.on('connectFailed', function(error) {
     console.log('Connect Error: ' + error.toString());
 });
@@ -61,10 +65,9 @@ function finishTask(task) {
 }
 
 function download(task) {
-    var taskPath = "" + task.projectId + '_' + task.ciId;
+    var taskPath = "out/" + task.projectId + '_' + task.ciId;
     if (!fs.existsSync(taskPath)) {
         fs.mkdirSync(taskPath);
-        // fs.mkdirSync(taskPath + '/out');
     }
 
     var jsPath = 'android/mml';
