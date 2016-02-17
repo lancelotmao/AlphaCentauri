@@ -65,6 +65,11 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type == 'utf8') {
           var msg = JSON.parse(message.utf8Data.toString());
+          if (msg.method == null) {
+            var emsg = 'invalid method';
+            connection.sendUTF(emsg);
+            return;
+          }
           console.log('method = ' + msg["method"]);
           if (msg["method"] == 'register') {
             clients.push({'device' : msg["device"], 'connection' : connection});

@@ -42,9 +42,14 @@ http.createServer(function (req, res) {
 		    	fs.mkdirSync(baseFolder + '/release');
 		    }
 
+		    var ciDir = baseFolder + '/ci/' + ciId;
+		    if (!fs.existsSync(ciDir)) {
+		    	fs.mkdirSync(ciDir);
+		    }
+
 		    var filePath;
 		    if (ciId !== undefined) {
-		    	filePath = baseFolder + '/ci/' + ciId + '.' + type;	
+		    	filePath = ciDir + '/' + ciId + '.' + type;	
 		    } else {
 		    	filePath = baseFolder + '/release/' + projectId + '.' + type;
 		    }
@@ -80,6 +85,26 @@ http.createServer(function (req, res) {
     	switch (parsedUrl.pathname) {
     		case '/upload':
     		{
+    			var dir;
+    			var filePath;
+			    if (ciId !== undefined) {
+			    	dir = baseFolder + '/ci/' + ciId + '/';
+			    	filePath = dir + ciId + '.' + type;	
+			    } else {
+			    	dir = baseFolder + '/release/';
+			    	filePath = dir + projectId + '.' + type;
+			    }
+
+    			// reading archives
+			    var zip = new AdmZip(filePath);
+			    var zipEntries = zip.getEntries(); // an array of ZipEntry records
+
+			    zipEntries.forEach(function(zipEntry) {
+			        if (zipEntry.name === configFile) {
+			            zip.extractEntryTo(zipEntry, dir, false, true);
+			        }
+			    });
+
 				msg = 'Upload success';
 				if (ciId != null && type === 'zip')
 					compiler.package({method : 'package', projectId : projectId, ciId : ciId});
@@ -107,7 +132,7 @@ http.createServer(function (req, res) {
 
     		case '/deploy':
 		    {
-		    	var src = baseFolder + '/ci/' + ciId + '.' + type;
+		    	var src = baseFolder + '/ci/' + ciId + '/' + ciId + '.' + type;
 		    	if (fs.existsSync(src)) {
 		    		// finished = false;
 					var dst = baseFolder + '/release/' + projectId + '.' + type;
@@ -117,17 +142,10 @@ http.createServer(function (req, res) {
 					}
 					fs.createReadStream(src).pipe(fs.createWriteStream(dst));
 
-					// reading archives
-				    var zip = new AdmZip(src);
-				    var zipEntries = zip.getEntries(); // an array of ZipEntry records
-
-				    zipEntries.forEach(function(zipEntry) {
-				        if (zipEntry.name === configFile) {
-				            // console.log(zipEntry.toString('utf8'));
-				            zip.extractEntryTo(zipEntry, baseFolder + '/release/', false, true);
-				            msg = 'deploy success';
-				        }
-				    });
+					var srcConfig = baseFolder + '/ci/' + ciId + '/' + configFile;
+					var dstConfig = baseFolder + '/release/'+configFile;
+					fs.createReadStream(src).pipe(fs.createWriteStream(dstConfig));
+					msg = 'deploy success for: ' + projectId + ' with CI id: ' + ciId;
 				} else {
 					status = 404;
 					msg = 'deploy failed, ci target [' + ciId + '] does not exist';
@@ -140,7 +158,7 @@ http.createServer(function (req, res) {
 		    	finished = false;
 		    	var filename;
 		    	if (ciId != null) {
-					filename = baseFolder + '/ci/' + ciId + '.' + type;
+					filename = baseFolder + '/ci/' + ciId + '/' + ciId + '.' + type;
 		    	} else {
 		    		filename = baseFolder + '/release/' + projectId + '.' + type;
 		    	}
