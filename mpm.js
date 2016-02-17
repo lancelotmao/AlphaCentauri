@@ -115,37 +115,39 @@ http.createServer(function (req, res) {
     		{
     			finished = false;
     			var path = baseFolder + '/release/' + configFile;
-    			var parser = new xml2js.Parser();
-				fs.readFile(path, function(err, data) {
-				    parser.parseString(data, function (err, result) {
-				    	console.log('version for ' + projectId + ': ');
-				    	if (result == null) {
-				    		sendResponse(res, 200, '-1');
-				    	} else {
-					        var v = result['tns:Project']['$'].versionCode;
-					        sendResponse(res, 200, v);
-					    }
-				    });
-				});
+    			getVersion(path, function(err, v){
+					console.log('version for ' + projectId + ': ');
+				    sendResponse(res, 200, v);
+    			});
     		}
     		break;
 
     		case '/deploy':
 		    {
 		    	var src = baseFolder + '/ci/' + ciId + '/' + ciId + '.' + type;
+		    	var dst = baseFolder + '/release/' + projectId + '.' + type;
 		    	if (fs.existsSync(src)) {
-		    		// finished = false;
-					var dst = baseFolder + '/release/' + projectId + '.' + type;
-			    	// delete file if exists already
-				    if (fs.existsSync(dst)) {
-					    fs.unlinkSync(dst);
+		    		var srcConfig = baseFolder + '/ci/' + ciId + '/' + configFile;
+					var dstConfig = baseFolder + '/release/'+ configFile;
+					if (!fs.existsSync(dstConfig)) {
+						deploy(src, dst, srcConfig, dstConfig);
+						msg = 'deploy success';
+					} else if (fs.existsSync(srcConfig)) {
+						finished = false;
+						getVersion(srcConfig, function(err, srcV){
+							getVersion(dstConfig, function(err, dstV){
+								console.log('comparing version: ' + srcV + ' ' + dstV);
+								if (parseInt(srcV) > parseInt(dstV)) {
+									deploy(src, dst, srcConfig, dstConfig);
+									msg = 'deploy success';
+								} else {
+									status = 405;//TODO
+									msg = 'deploy failed, ci target [' + ciId + '] version too low ci version: ' + srcV + ', current deployed version: ' + dstV;
+								}
+								sendResponse(res, status, msg);
+							});
+						});
 					}
-					fs.createReadStream(src).pipe(fs.createWriteStream(dst));
-
-					var srcConfig = baseFolder + '/ci/' + ciId + '/' + configFile;
-					var dstConfig = baseFolder + '/release/'+configFile;
-					fs.createReadStream(src).pipe(fs.createWriteStream(dstConfig));
-					msg = 'deploy success for: ' + projectId + ' with CI id: ' + ciId;
 				} else {
 					status = 404;
 					msg = 'deploy failed, ci target [' + ciId + '] does not exist';
@@ -209,4 +211,28 @@ function sendResponse(res, status, msg) {
 	});
 	console.log((new Date()) + ' ' + msg);
 	res.end(msg);
+}
+
+function getVersion(path, callback) {
+	var parser = new xml2js.Parser();
+	fs.readFile(path, function(err, data) {
+	    parser.parseString(data, function (err, result) {
+	    	var v;
+	    	if (result == null) {
+	    		v = '-1';
+	    	} else {
+		        v = result['tns:Project']['$'].versionCode;
+		    }
+	    	callback(err, v);
+	    });
+	});
+}
+
+function deploy(src, dst, srcConfig, dstConfig) {
+	// delete file if exists already
+    if (fs.existsSync(dst)) {
+	    fs.unlinkSync(dst);
+	}
+	fs.createReadStream(src).pipe(fs.createWriteStream(dst));
+	fs.createReadStream(srcConfig).pipe(fs.createWriteStream(dstConfig));
 }

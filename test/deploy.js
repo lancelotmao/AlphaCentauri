@@ -7,7 +7,7 @@ var fs = require('fs');
 var options = {
     host: '127.0.0.1',
     port: 8888,
-    path: '/deploy?projectId=216203276&ci=1',
+    path: '/deploy?projectId=216203276&ci=2',
     method: 'GET'
 };
 

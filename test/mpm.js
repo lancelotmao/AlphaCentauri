@@ -10,7 +10,7 @@ var HOST = '127.0.0.1';
 var options = {
     host: HOST,
     port: 8888,
-    path: '/upload?projectId=216203276&ci=1',
+    path: '/upload?projectId=216203276&ci=2',
     method: 'POST'
 };
 
