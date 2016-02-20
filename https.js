@@ -2,8 +2,9 @@ var https = require('https');
 var fs = require('fs');
 
 var options = {
-	key: fs.readFileSync('key.pem'),
-	cert: fs.readFileSync('cert.pem')
+	key: fs.readFileSync('private.pem'),
+	cert: fs.readFileSync('public.pem'),
+	passphrase: 'M9l0d6539684'
 };
 
 var a = https.createServer(options, function(req, res) {
@@ -11,4 +12,4 @@ var a = https.createServer(options, function(req, res) {
 	res.setHeader('content-type', 'application/xml');
 	// res.writeHead(200);
 	res.end(fs.readFileSync('info.plist'));
-}).listen(10001);
+}).listen(10000);
