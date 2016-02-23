@@ -130,7 +130,8 @@ http.createServer(function (req, res) {
 				        res.end(msg);
 					} else {
 						res.writeHead(status, {
-				            "Content-Type": "text/plain;charset=utf-8"
+				            "Content-Type": "application/octet-stream",
+				            "Content-Length": fs.statSync(bundlePath)['size'],
 				        });
 						res.write(file, "binary");
 						msg = 'download success';
