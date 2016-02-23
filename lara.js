@@ -6,6 +6,8 @@ var url = require("url");
 var fs = require('fs');
 var AdmZip = require('adm-zip');
 var xml2js = require('xml2js');
+var sys = require('sys');
+var exec = require('child_process').exec;
 
 var configFile = "AndroidManifest.xml";
 
@@ -92,26 +94,25 @@ http.createServer(function (req, res) {
     		case '/version':
     		{
     			finished = false;
-    			var path = bundleFolder + '/' + configFile;
-		    	fs.readFile(path, "binary", function(err, file) {
-					if(err) {        
+    			var cmd = "./aapt dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
+    			var child = exec(cmd, function(err, stdout, stderr) {
+    				if(err) {        
 						status = 404;
-						msg = 'get version failed: ' + path;
 						res.writeHead(status, {
 				            "Content-Type": "text/plain;charset=utf-8"
 				        });
-				        res.end(msg);
+						msg = 'get version failed: ' + bundlePath + ' ' + err;
+						res.end(msg);
 					} else {
+						status = 200;
 						res.writeHead(status, {
 				            "Content-Type": "text/plain;charset=utf-8"
 				        });
-						res.write(file, "binary");
-						msg = 'get version success';
-						res.end();
+						msg = stdout;
+						res.end(msg);
 					}
-					
-					console.log((new Date()) + ' ' + msg + ': ' + appid + ', ' + bundleName);
-				});
+					console.log((new Date()) + ' ' + msg);
+    			});
     		}
     		break;
 
