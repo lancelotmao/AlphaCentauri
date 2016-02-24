@@ -61,6 +61,10 @@ http.createServer(function (req, res) {
 		    console.log((new Date()) + ' uploading ' + bundlePath);
 		}
 	    break;
+
+	    case '/versions':
+	    console.log('checking versions for: ' + bundleName);
+	    break;
 	}
 
     req.on("data", function (postDataChunk) {
@@ -108,6 +112,32 @@ http.createServer(function (req, res) {
     		}
     		break;
 
+    		case '/versions':
+    		{
+    			finished = false;
+    			var versions = {};
+    			var completeCounter = 0;
+    			var bundles = bundleName.split(',');
+    			for (var i = 0, n = bundles.length;i < n;++i) {
+    				var trimedName = bundles[i].trim();
+    				var bp = 'packages_native/' + appid + '/' + trimedName + '/' + trimedName + '.apk';
+    				getVersion(bp, trimedName, function(bn, v) {
+    					versions[bn] = v;
+    					completeCounter++;
+    					if (completeCounter == n) {
+							status = 200;
+							res.writeHead(status, {
+					            "Content-Type": "text/plain;charset=utf-8"
+					        });
+							msg = JSON.stringify(versions);
+							console.log((new Date()) + ' versions: ' + msg);
+							res.end(msg);
+    					}
+    				});
+    			}
+    		}
+    		break;
+
     		case '/download':
 		    {
 		    	finished = false;
@@ -150,6 +180,17 @@ http.createServer(function (req, res) {
 }).listen(6666);
 
 console.log("Lara Package Manager http server listening at 6666");
+
+function getVersion(bundlePath, bundleName, callback) {
+	var cmd = "./aapt dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
+	var child = exec(cmd, function(err, stdout, stderr) {
+		if(stderr) {
+			callback(bundleName, '-1');      
+		} else {
+			callback(bundleName, stdout.trim());
+		}
+	});
+}
 
 function sendResponse(res, status, msg) {
 	res.writeHead(status, {
