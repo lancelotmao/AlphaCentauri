@@ -20,6 +20,9 @@ http.createServer(function (req, res) {
 	// get ci id
 	var ciId = parsedUrl.query.ci;
 
+	// used for packaging
+	var platform = parsedUrl.query.platform;
+
 	var type = parsedUrl.query.type;
 	if (type == null) {
     	type = 'zip';
@@ -106,8 +109,8 @@ http.createServer(function (req, res) {
 			    });
 
 				msg = 'Upload success';
-				if (ciId != null && type === 'zip')
-					compiler.package({method : 'package', projectId : projectId, ciId : ciId});
+				if (ciId != null && platform != null && type === 'zip')
+					compiler.package({method : 'package', projectId : projectId, ciId : ciId, platform : platform});
 	        }
     		break;
 

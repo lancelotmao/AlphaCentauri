@@ -84,14 +84,22 @@ function download(task) {
         }
 
         res.on('end', function(){
-            console.log('download finished. start native packaging');
-
-            // TODO
-            nativePackage();
+            if (task.platform == 'android') {
+                console.log('download finished. start native packaging for android');
+                nativePackageAndroid();
+            } else {
+                console.log('download finished. start native packaging for iOS');
+                nativePackageiOS();
+            }
         });
     });
 
-    function nativePackage() {
+    function nativePackageAndroid() {
+        // TODO
+        upload('apk');
+    }
+
+    function nativePackageiOS() {
         var cmd = 'xcodebuild -scheme eCare archive -archivePath ' + taskPath + '/mcloud.xcarchive';
         var child = exec(cmd, function (error, stdout, stderr) {
             sys.print('stdout: ' + stdout);
@@ -120,7 +128,7 @@ function download(task) {
 
             if (error == null) {
                 console.log('xcode export success. uploading...');
-                upload();
+                upload('ipa');
             } else {
                 console.log('exec error: ' + error);
                 finishTask(task);
@@ -129,11 +137,11 @@ function download(task) {
         });
     }
 
-    function upload() {
+    function upload(type) {
         var options = {
             host: HOST,
             port: 8888,
-            path: '/upload?projectId=' + task.projectId + '&ci=' + task.ciId + '&type=ipa',
+            path: '/upload?projectId=' + task.projectId + '&ci=' + task.ciId + '&type=' + type,
             method: 'POST'
         };
 
@@ -146,16 +154,20 @@ function download(task) {
             });
         });
 
-        var ipaPath = taskPath + '/' + task.projectId + '.ipa';
-        var stream = fs.createReadStream(ipaPath);
-        stream.on('data', function(data) {
-            req.write(data);
-        });
+        var productPath = taskPath + '/' + task.projectId + '.' + type;
+        if (fs.existsSync(productPath)) {
+            var stream = fs.createReadStream(productPath);
+            stream.on('data', function(data) {
+                req.write(data);
+            });
 
-        stream.on('end', function() {
-            req.end();
+            stream.on('end', function() {
+                req.end();
+                finishTask(task);
+            });
+        } else {
             finishTask(task);
-        });
+        }
     }
 }
 
