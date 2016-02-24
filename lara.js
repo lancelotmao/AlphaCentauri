@@ -25,14 +25,16 @@ http.createServer(function (req, res) {
 		return;
 	}
 
-	var type = parsedUrl.query.type;
-	if (type == null) {
-    	type = 'zip';
-    }
-
+	var type = 'apk'
 	var baseFolder = 'packages_native/' + appid;
 	var bundleFolder = baseFolder + '/' + bundleName;
-	var bundlePath = bundleFolder + '/' + bundleName + '.' + type;
+	var bundlePath = bundleFolder + '/' + bundleName + '.apk';
+	var bundleFileName = bundleName + '.apk';
+	if (!fs.existsSync(bundlePath)) {
+		bundlePath = bundleFolder + '/' + bundleName + '.zip';
+		type = 'zip';
+		bundleFileName = bundleName + '.zip';
+	}
 
     switch (pathname) {
     	case '/upload':
@@ -77,17 +79,7 @@ http.createServer(function (req, res) {
     	switch (parsedUrl.pathname) {
     		case '/upload':
     		{
-    			// reading archives
-			    var zip = new AdmZip(bundlePath);
-			    var zipEntries = zip.getEntries(); // an array of ZipEntry records
-
-			    zipEntries.forEach(function(zipEntry) {
-			        if (zipEntry.name === configFile) {
-			            zip.extractEntryTo(zipEntry, bundleFolder, false, true);
-			        }
-			    });
-
-				msg = 'Upload success';
+    			msg = 'Upload success';
 	        }
     		break;
 
@@ -132,6 +124,7 @@ http.createServer(function (req, res) {
 						res.writeHead(status, {
 				            "Content-Type": "application/octet-stream",
 				            "Content-Length": fs.statSync(bundlePath)['size'],
+				            "Content-Disposition": bundleFileName
 				        });
 						res.write(file, "binary");
 						msg = 'download success';
