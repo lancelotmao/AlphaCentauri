@@ -98,19 +98,23 @@ http.createServer(function (req, res) {
 			    	filePath = dir + projectId + '.' + type;
 			    }
 
-    			// reading archives
-			    var zip = new AdmZip(filePath);
-			    var zipEntries = zip.getEntries(); // an array of ZipEntry records
+			    if(fs.existsSync(filePath)) {
+	    			// reading archives
+				    var zip = new AdmZip(filePath);
+				    var zipEntries = zip.getEntries(); // an array of ZipEntry records
 
-			    zipEntries.forEach(function(zipEntry) {
-			        if (zipEntry.name === configFile) {
-			            zip.extractEntryTo(zipEntry, dir, false, true);
-			        }
-			    });
+				    zipEntries.forEach(function(zipEntry) {
+				        if (zipEntry.name === configFile) {
+				            zip.extractEntryTo(zipEntry, dir, false, true);
+				        }
+				    });
 
-				msg = 'Upload success';
-				if (ciId != null && platform != null && type === 'zip')
-					compiler.package({method : 'package', projectId : projectId, ciId : ciId, platform : platform});
+					msg = 'Upload success';
+					if (ciId != null && platform != null && type === 'zip')
+						compiler.package({method : 'package', projectId : projectId, ciId : ciId, platform : platform});
+				} else {
+					msg = 'Upload failed, no data';
+				}
 	        }
     		break;
 

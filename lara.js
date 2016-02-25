@@ -25,16 +25,11 @@ http.createServer(function (req, res) {
 		return;
 	}
 
-	var type = 'apk'
+	var type = parsedUrl.query.type;
 	var baseFolder = 'packages_native/' + appid;
 	var bundleFolder = baseFolder + '/' + bundleName;
-	var bundlePath = bundleFolder + '/' + bundleName + '.apk';
-	var bundleFileName = bundleName + '.apk';
-	if (!fs.existsSync(bundlePath)) {
-		bundlePath = bundleFolder + '/' + bundleName + '.zip';
-		type = 'zip';
-		bundleFileName = bundleName + '.zip';
-	}
+	var bundlePath;
+	var bundleFileName;
 
     switch (pathname) {
     	case '/upload':
@@ -58,12 +53,25 @@ http.createServer(function (req, res) {
 		    if (fs.existsSync(bundlePath)) {
 			    // fs.unlinkSync(filePath);
 			}
-		    console.log((new Date()) + ' uploading ' + bundlePath);
+
+		    if (type == null) {
+		    	type = 'zip';
+		    }
+		    bundlePath = bundleFolder + '/' + bundleName + '.' + type;
+			bundleFileName = bundleName + '.' + type;
+
+			console.log((new Date()) + ' uploading ' + bundlePath);
 		}
 	    break;
 
-	    case '/versions':
-	    console.log('checking versions for: ' + bundleName);
+	    default:
+	    bundlePath = bundleFolder + '/' + bundleName + '.apk';
+		bundleFileName = bundleName + '.apk';
+		if (!fs.existsSync(bundlePath)) {
+			bundlePath = bundleFolder + '/' + bundleName + '.zip';
+			type = 'zip';
+			bundleFileName = bundleName + '.zip';
+		}
 	    break;
 	}
 
@@ -114,6 +122,7 @@ http.createServer(function (req, res) {
 
     		case '/versions':
     		{
+    			console.log('checking versions for: ' + bundleName);
     			finished = false;
     			var versions = {};
     			var completeCounter = 0;
