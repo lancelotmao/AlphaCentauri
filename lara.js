@@ -124,14 +124,16 @@ http.createServer(function (req, res) {
     		{
     			console.log('checking versions for: ' + bundleName);
     			finished = false;
-    			var versions = {};
+    			var versions = [];
     			var completeCounter = 0;
     			var bundles = bundleName.split(',');
     			for (var i = 0, n = bundles.length;i < n;++i) {
     				var trimedName = bundles[i].trim();
     				var bp = 'packages_native/' + appid + '/' + trimedName + '/' + trimedName + '.apk';
     				getVersion(bp, trimedName, function(bn, v) {
-    					versions[bn] = v;
+    					var x = {};
+    					x[bn] = v;
+    					versions.push(x);
     					completeCounter++;
     					if (completeCounter == n) {
 							status = 200;
