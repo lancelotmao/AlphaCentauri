@@ -8,8 +8,11 @@ var AdmZip = require('adm-zip');
 var xml2js = require('xml2js');
 var sys = require('sys');
 var exec = require('child_process').exec;
+var os = require('os');
 
 var configFile = "AndroidManifest.xml";
+var aapt = os.platform() == 'linux' ? 'aapt_linux' : 'aapt_mac';
+console.log('OS name: ' + os.platform() + ' aapt: ' + aapt);
 
 http.createServer(function (req, res) {
 	var parsedUrl = url.parse(req.url, true);
@@ -98,7 +101,7 @@ http.createServer(function (req, res) {
     		case '/version':
     		{
     			finished = false;
-    			var cmd = "./aapt dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
+    			var cmd = "./" + aapt + " dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
     			var child = exec(cmd, function(err, stdout, stderr) {
     				if(err) {        
 						status = 404;
@@ -193,7 +196,7 @@ http.createServer(function (req, res) {
 console.log("Lara Package Manager http server listening at 6666");
 
 function getVersion(bundlePath, bundleName, callback) {
-	var cmd = "./aapt dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
+	var cmd = "./" + aapt + " dump badging " + bundlePath + " | sed '/^package/ !d' | sed 's/.*versionCode=.\\([0-9]*\\).*/\\1/g'";
 	var child = exec(cmd, function(err, stdout, stderr) {
 		if(stderr) {
 			callback(bundleName, '-1');      
