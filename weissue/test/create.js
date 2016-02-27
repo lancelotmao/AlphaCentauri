@@ -1,5 +1,5 @@
 
-var data = {title: 'I found an issue', des: 'this is a naughty bug', submittedBy: 'lance', appid: 'jupiter', versionCode:'1'}
+var data = {title: 'I found an issue', description: 'this is a naughty bug', submittedBy: 'lance', appid: 'jupiter', versionCode:'1'}
 
 /*
  * test for http

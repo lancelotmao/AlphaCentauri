@@ -46,42 +46,30 @@ http.createServer(function (req, res) {
     switch (parsedUrl.pathname) {
       case '/weissue/api/create':
       {
-        // "INSERT INTO weissue.issue" + 
-        //         "('uid', title, description, submittedBy, status, createdAt,
-        //         screenshot,
-        //         voice,
-        //         appid,
-        //         versionCode)
-        //         VALUES
-        //         (uuid(),
-        //         'bug title',
-        //         'des',
-        //         'lance',
-        //         'open',
-        //         now(),
-        //         'x',
-        //         'y',
-        //         '12345',
-        //         2);"
         finished = false;
         var title = postObj['title'];
-        var des = postObj['des'];
+        var description = postObj['description'];
         var submittedBy = postObj['submittedBy'];
         var appid = postObj['appid'];
         var versionCode = postObj['versionCode'];
-        var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, status, appid, versionCode, createdAt) VALUES \
-        (uuid()," + "\'" + title + "\', " + "\'" + des + "\'," + "\'" + submittedBy + "\', " + "\'open\'," + "\'" + appid + "\',"
-        + "\'" + versionCode + "\'," + "now()" + ");"; 
-        connection.query(sql, function(err, rows, fields){
-          if (err) {
-            console.log(err);
-            connection.end();
-          } else {
-            console.log('', rows);  
-            msg = 'create issue success';
-            sendResponse(res, status, msg)
-          }
-        });
+        if (title == null || description == null || submittedBy == null || appid == null || versionCode == null) {
+          msg = 'title, description, submittedBy, appid, versionCode cannot be null';
+          sendResponse(res, status, msg);
+        } else {
+          var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, status, appid, versionCode, createdAt) VALUES \
+          (uuid()," + "\'" + title + "\', " + "\'" + description + "\'," + "\'" + submittedBy + "\', " + "\'open\'," + "\'" + appid + "\',"
+          + "\'" + versionCode + "\'," + "now()" + ");"; 
+          connection.query(sql, function(err, rows, fields){
+            if (err) {
+              console.log(err);
+              connection.end();
+            } else {
+              console.log('', rows);  
+              msg = 'create issue success';
+              sendResponse(res, status, msg);
+            }
+          });
+        }
       }
       break;
 
