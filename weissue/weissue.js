@@ -4,6 +4,7 @@
  var http = require('http');
  var url = require("url");
  var mysql = require('mysql');
+ var fs = require('fs');
 
  var connection = mysql.createConnection({
   host: '120.25.219.17',
@@ -18,22 +19,49 @@
  http.createServer(function (req, res) {
   var parsedUrl = url.parse(req.url, true);
   var pathname = parsedUrl.pathname;
+  var appid = parsedUrl.query.appid;
 
   console.log('responding to: ' + pathname);
+
+  if (appid != null && !fs.existsSync(appid)) {
+    fs.mkdir(appid, null);
+    fs.mkdir(appid + '/screenshot', null);
+    fs.mkdir(appid + '/voice', null);
+  }
+
   var postData = "";
+  var uploadingUUID;
+
+  switch (pathname) {
+      case '/weissue/api/upload_screenshot':
+      uploadingUUID = guid();
+      break;
+  }
 
   req.on("data", function (postDataChunk) {
-    postData += postDataChunk;
+    switch (parsedUrl.pathname) {
+    case "/weissue/api/upload_screenshot":
+      fs.appendFileSync(appid + '/screenshot/' + uploadingUUID, postDataChunk);
+      break;
+
+    default:
+      postData += postDataChunk;
+      break;
+    }
   });
 
   req.on("end", function () {
     var status = 200;
     var msg;
 
-    console.log('postData: ' + postData);
-
-    var postObj = JSON.parse(postData);
-    var appid = postObj['appid'];
+    // console.log('postData: ' + postData);
+    var postObj;
+    try {
+      postObj = JSON.parse(postData);
+      appid = postObj['appid'];
+    } catch(e) {
+      console.log(e);
+    }
     
     switch (parsedUrl.pathname) {
       case '/weissue/api/create':
@@ -78,6 +106,51 @@
           sendResponse(res, status, JSON.stringify(msg));
         });
       }
+      break;
+
+      case "/weissue/api/upload_screenshot":
+      {
+        msg = 'upload screen shot success';
+        sendResponse(res, status, msg);
+      }
+      break;
+
+      case "/weissue/api/download_screenshot":
+      {
+        var ssdir = appid + '/screenshot';
+        var ss = fs.readdirSync(ssdir);
+        if (ss.length == 0) {
+            status = 404;
+            msg = 'screen shot download failed: ' + appid;
+            sendResponse(res, status, msg);
+        } else {
+          finished = false;
+          var path = ssdir + '/' + ss[0];
+          console.log('downloading screen shot: ' + path);
+          fs.readFile(path, "binary", function (err, file) {
+              if (err) {
+                  status = 404;
+                  msg = 'download failed: ' + path;
+                  res.writeHead(status, {
+                      "Content-Type": "text/plain;charset=utf-8"
+                  });
+                  res.end(msg);
+              } else {
+                  res.writeHead(status, {
+                      "Content-Type": "application/octet-stream",
+                      "Content-Length": fs.statSync(path)['size']
+                  });
+                  res.write(file, "binary");
+                  msg = 'download success';
+                  res.end();
+              }
+          });
+        }
+      }
+      break;
+
+      default:
+      console.log('path not valid: ' + pathname);
       break;
     }
   });
