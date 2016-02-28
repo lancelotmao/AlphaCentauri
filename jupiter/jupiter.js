@@ -62,6 +62,7 @@ http.createServer(function (req, res) {
             case '/upload':
             {
                 msg = 'Upload success';
+                sendResponse(res, status, msg);
             }
                 break;
 
