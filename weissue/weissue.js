@@ -46,8 +46,9 @@
           msg = 'title, description, submittedBy, appid, versionCode cannot be null';
           sendResponse(res, status, msg);
         } else {
-          var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, status, appid, versionCode, createdAt) VALUES \
-          (uuid()," + "\'" + title + "\', " + "\'" + description + "\'," + "\'" + submittedBy + "\', " + "\'open\'," + "\'" + appid + "\',"
+          var uuid = guid();
+          var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, status, appid, versionCode, createdAt) VALUES ("
+          + "\'" + uuid + "\'," + "\'" + title + "\', " + "\'" + description + "\'," + "\'" + submittedBy + "\', " + "\'open\'," + "\'" + appid + "\',"
           + "\'" + versionCode + "\'," + "now()" + ");"; 
           connection.query(sql, function(err, rows, fields){
             if (err) {
@@ -55,7 +56,7 @@
               connection.end();
             } else { 
               msg = 'create issue success';
-              sendResponse(res, status, msg);
+              sendResponse(res, status, JSON.stringify({uuid:uuid}));
             }
           });
         }
@@ -84,7 +85,14 @@
 
  console.log("We issue http server listening at 7000");
 
- function sendResponse(res, status, msg) {
+ function guid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+
+function sendResponse(res, status, msg) {
   res.writeHead(status, {
     "Content-Type": "text/plain;charset=utf-8"
   });
