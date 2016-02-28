@@ -19,12 +19,6 @@ http.createServer(function (req, res) {
     var pathname = parsedUrl.pathname;
 
     var modelName = parsedUrl.query.modelName;
-
-    if (modelName == null) {
-        sendResponse(res, 404, 'must specify modelName in query');
-        return;
-    }
-
     var type = parsedUrl.query.type;
     if (type == null) {
         type = 'zip';
@@ -36,6 +30,10 @@ http.createServer(function (req, res) {
     switch (pathname) {
         case '/upload':
         {
+            if (modelName == null) {
+                sendResponse(res, 404, 'must specify modelName in query');
+                return;
+            }
             if (!fs.existsSync(modelFolder)) {
                 console.log('Model ' + modelName + ' does not exist. creating folder');
                 fs.mkdirSync(modelFolder);
@@ -59,7 +57,6 @@ http.createServer(function (req, res) {
     req.on("end", function () {
         var status = 200;
         var msg;
-        var finished = true;
 
         switch (parsedUrl.pathname) {
             case '/upload':
@@ -68,10 +65,11 @@ http.createServer(function (req, res) {
             }
                 break;
 
-            case '/version':
+            case '/list':
             {
-                finished = false;
-
+                fs.readdir(baseFolder, function(err, files){
+                    sendResponse(res, status, JSON.stringify(files));
+                });
             }
                 break;
 
@@ -111,11 +109,6 @@ http.createServer(function (req, res) {
                 status = 404;
                 msg = 'path not found ' + pathname;
                 break;
-        }
-
-        // for asynchronous service, finish later
-        if (finished) {
-            sendResponse(res, status, msg);
         }
     });
 }).listen(8000);
