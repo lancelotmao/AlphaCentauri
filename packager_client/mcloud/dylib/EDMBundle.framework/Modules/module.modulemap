@@ -1,6 +1,0 @@
-framework module EDMBundle {
-  umbrella header "EDMBundle.h"
-
-  export *
-  module * { export * }
-}

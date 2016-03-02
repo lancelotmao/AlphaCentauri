@@ -1,6 +1,0 @@
-framework module LoginBundle {
-  umbrella header "LoginBundle.h"
-
-  export *
-  module * { export * }
-}

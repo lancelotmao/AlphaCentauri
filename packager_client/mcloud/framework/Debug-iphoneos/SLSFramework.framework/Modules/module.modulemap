@@ -1,6 +1,0 @@
-framework module SLSFramework {
-  umbrella header "SLSFramework.h"
-
-  export *
-  module * { export * }
-}

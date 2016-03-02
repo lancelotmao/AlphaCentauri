@@ -1,6 +1,0 @@
-framework module DBBundle {
-  umbrella header "DBBundle.h"
-
-  export *
-  module * { export * }
-}

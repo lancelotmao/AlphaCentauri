@@ -70,7 +70,7 @@ function download(task) {
         fs.mkdirSync(taskPath);
     }
 
-    var jsPath = 'android/mml';
+    var jsDownloadPath = 'download/mml';
     var request = http.get('http://' + HOST + ':8888/download?projectId='+task.projectId+'&ci='+task.ciId, function(res) {
         if (res.statusCode == 404) {
             res.setEncoding('utf8');
@@ -79,13 +79,14 @@ function download(task) {
             });
             finishTask(task);
         } else {
-            var file = fs.createWriteStream(jsPath + "/MMLProject.zip");
+            var file = fs.createWriteStream(jsDownloadPath + "/MMLProject.zip");
             res.pipe(file);
         }
 
         res.on('end', function(){
             if (task.platform == 'android') {
                 console.log('download finished. start native packaging for android');
+                 unzipDownloadedMML(jsDownloadPath + "/MMLProject.zip");
                 nativePackageAndroid();
             } else {
                 console.log('download finished. start native packaging for iOS');
@@ -94,16 +95,50 @@ function download(task) {
         });
     });
 
+    function unzipDownloadedMML(zipFilePath){
+        var AdmZip = require('adm-zip');
+        // reading archives
+        var zip = new AdmZip("./" + zipFilePath);
+        /*target path and override*/
+        zip.extractAllTo("./android/mCloudPackageTemplate/mCloudPlay/src/main/assets/mml/216203276/", true);
+    }
+
     function nativePackageAndroid() {
         // TODO
-        upload('apk');
+
+        var cmd = 'cd ./android/mCloudPackageTemplate';
+        var child = exec(cmd, function (error, stdout, stderr) {
+            sys.print('stdout: ' + stdout + '\n');
+            sys.print('stderr: ' + stderr + '\n');
+
+            if (error == null) {
+                console.log('open android project.');
+                var cmd = 'gradle build';
+                var child = exec(cmd, function (error, stdout, stderr) {
+                    sys.print('stdout: ' + stdout + '\n');
+                    sys.print('stderr: ' + stderr + '\n');
+
+                    if (error == null) {
+                        console.log('gradle build success. exporting apk...');
+                        exportAPK();
+                    } else {
+                        console.log('exec error: ' + error);
+                        finishTask(task);
+                    }
+                });
+            } else {
+                console.log('exec error: ' + error);
+                finishTask(task);
+            }
+        });
+        
     }
 
     function nativePackageiOS() {
-        var cmd = 'xcodebuild -scheme eCare archive -archivePath ' + taskPath + '/mcloud.xcarchive';
+        var cmd = 'xcodebuild -project ./iOS/mcloud.xcodeproj -scheme eCare archive -archivePath ' + taskPath + '/mcloud.xcarchive';
         var child = exec(cmd, function (error, stdout, stderr) {
-            sys.print('stdout: ' + stdout);
-            sys.print('stderr: ' + stderr);
+            sys.print('stdout: ' + stdout + '\n');
+            sys.print('stderr: ' + stderr + '\n');
 
             if (error == null) {
                 console.log('xcode build success. exporting ipa...');
@@ -112,7 +147,6 @@ function download(task) {
                 console.log('exec error: ' + error);
                 finishTask(task);
             }
-            
         });
     }
 
@@ -128,7 +162,7 @@ function download(task) {
 
             if (error == null) {
                 console.log('xcode export success. uploading...');
-                upload('ipa');
+                upload(ipaPath, 'ipa');
             } else {
                 console.log('exec error: ' + error);
                 finishTask(task);
@@ -137,7 +171,32 @@ function download(task) {
         });
     }
 
-    function upload(type) {
+    function copy(src, dst) {
+        //fs.createReadStream(src).pipe(fs.createWriteStream(dst));
+        var rs = fs.createReadStream(src);
+        var ws = fs.createWriteStream(dst);
+
+        rs.on('data', function (chunk) {
+            if (ws.write(chunk) === false) {
+                rs.pause();
+            }
+        });
+
+        rs.on('end', function () {
+            ws.end();
+        });
+
+        ws.on('drain', function () {
+            rs.resume();
+        });
+    }
+
+    function exportAPK() {
+        var apkSrcPath = 'android/mCloudPackageTemplate/mCloudPlay/build/outputs/apk' + '/' + 'mCloudPlay-debug.apk';
+        upload(apkSrcPath, 'apk');
+    }
+
+    function upload(productPath, type) {
         var options = {
             host: HOST,
             port: 8888,
@@ -154,7 +213,6 @@ function download(task) {
             });
         });
 
-        var productPath = taskPath + '/' + task.projectId + '.' + type;
         if (fs.existsSync(productPath)) {
             var stream = fs.createReadStream(productPath);
             stream.on('data', function(data) {

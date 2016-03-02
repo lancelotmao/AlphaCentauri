@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var HOST = '127.0.0.1';
 // var HOST = '10.75.69.49';
+var HOST = '120.25.219.17';
 
 var options = {
     host: HOST,

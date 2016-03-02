@@ -14,7 +14,7 @@ var HOST = '127.0.0.1';
 var options = {
     host: HOST,
     port: 7000,
-    path: '/weissue/api/upload_screenshot?appid=jupiter&type=png',
+    path: '/weissue/api/upload_screenshot?issueid=b3c92e84-1b7c-4e55-b27c-00c1725f3662&type=png',
     method: 'POST'
 };
 

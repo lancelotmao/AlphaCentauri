@@ -1,6 +1,0 @@
-framework module FileSelectorBundle {
-  umbrella header "FileSelectorBundle.h"
-
-  export *
-  module * { export * }
-}
