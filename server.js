@@ -25,7 +25,6 @@ http.createServer(function (req, res) {
     	case '/':
     	{
     		fs.readFile('site/index.html', "utf8", function(err, data){
-    			console.log('responding to home page' + data);
     			res.end(data);
     		});
     	}

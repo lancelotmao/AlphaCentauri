@@ -12,4 +12,4 @@ var a = https.createServer(options, function(req, res) {
 	res.setHeader('content-type', 'application/xml');
 	// res.writeHead(200);
 	res.end(fs.readFileSync('info.plist'));
-}).listen(10000);
+}).listen(443);
