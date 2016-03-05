@@ -26,9 +26,35 @@ http.createServer(function (req, res) {
     	}
     	break;
 
+    	case '/user/register':
+    	{
+    		var un = parsedUrl.query.username;
+    		var pwd = parsedUrl.query.password;
+    		var auth = require('./user/auth.js');
+    		auth.register(guid(), un, pwd, function(data) {
+    			res.end(data);
+    		});
+    	}
+    	break;
+
+    	case '/user/login':
+    	{
+    		var un = parsedUrl.query.username;
+    		var pwd = parsedUrl.query.password;
+    		var auth = require('./user/auth.js');
+    		auth.login(un, pwd, function(data) {
+    			res.writeHead(data.status);
+    			res.end(JSON.stringify(data));
+    		});
+    	}
+    	break;
+
     	case '/createapp':
     	{
-    		createApp.create(guid());
+    		createApp.create(guid(), function(data) {
+    			console.log('create app result: ' + data);
+    			res.end(data);
+    		});
 		}
 	    break;
 
@@ -76,9 +102,9 @@ http.createServer(function (req, res) {
 		    break;
     	}
 	});
-}).listen(80);
+}).listen(8080);
 
-console.log("http server listening at 80");
+console.log("http server listening at 8080");
 
 function guid() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
