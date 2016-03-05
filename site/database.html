@@ -1,0 +1,52 @@
+<html>
+<head>
+<link rel="stylesheet" href="/css/main.css">
+<style>
+div.nav {
+    width:200px;
+    float:left;
+}
+
+ul, li{margin: 0; padding: 0; list-style: none;}
+
+div.table_content{
+	background-color: #0000FF;
+	position: absolute;
+	left:200px;
+	right:0px;
+}
+
+</style>
+
+<script type="text/javascript">
+	window.onload = function() {
+		var items = "";
+		var tableList = document.getElementById("menu");
+		for (var i = 0;i < 100;i++) {
+			items += '<li>a</li>'
+		}
+		tableList.innerHTML = items;
+	}
+</script>
+</head>
+
+<body>
+
+	<div class="nav">
+		<ul id="menu">
+			<li>Database</li>
+			<li>Service</li>
+			<li>App</li>
+		</ul>
+	</div>
+
+	<div class="table_content" id="table_content">
+		<ul id="menu">
+			<li>Database</li>
+			<li>Service</li>
+			<li>App</li>
+		</ul>
+	</div>
+
+</body>
+</html>
