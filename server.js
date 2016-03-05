@@ -19,14 +19,6 @@ http.createServer(function (req, res) {
 	var appid = parsedUrl.query.appid;
 
 	switch (pathname) {
-    	case '/':
-    	{
-    		fs.readFile('site/index.html', "utf8", function(err, data){
-    			res.end(data);
-    		});
-    	}
-    	break;
-
     	case '/createapp':
     	{
     		createApp.create(guid(), function(data) {
@@ -37,7 +29,8 @@ http.createServer(function (req, res) {
 	    break;
 
 	    default:
-	    break;
+    	homePage(pathname, res);
+    	break;
 	}
 
     req.on("data", function (postDataChunk) {
@@ -91,6 +84,18 @@ function guid() {
 	});
 }
 
+function homePage(path, res) {
+	if (path === '/') {
+		path = 'site/index.html';
+	} else {
+		path = 'site/' + path;
+	}
+	fs.readFile(path, "utf8", function(err, data){
+		console.log('' + data);
+		res.end(data);
+	});
+}
+
 function sendResponse(res, status, msg) {
 	res.writeHead(status, {
 	    "Content-Type": "text/plain;charset=utf-8"
@@ -140,6 +145,10 @@ var a = https.createServer(options, function(req, res) {
     			res.end(msg);
     		});
     	}
+    	break;
+
+    	default:
+    	homePage(pathname, res);
     	break;
     }
 }).listen(443);
