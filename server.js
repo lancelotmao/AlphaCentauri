@@ -102,9 +102,9 @@ http.createServer(function (req, res) {
 		    break;
     	}
 	});
-}).listen(8080);
+}).listen(80);
 
-console.log("http server listening at 8080");
+console.log("http server listening at 80");
 
 function guid() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
