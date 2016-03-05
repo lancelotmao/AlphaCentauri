@@ -2,6 +2,7 @@
  * http server
 */
 var http = require('http');
+var https = require('https');
 var url = require("url");
 var fs = require('fs');
 var createApp = require('./createapp.js');
@@ -22,29 +23,6 @@ http.createServer(function (req, res) {
     	{
     		fs.readFile('site/index.html', "utf8", function(err, data){
     			res.end(data);
-    		});
-    	}
-    	break;
-
-    	case '/user/register':
-    	{
-    		var un = parsedUrl.query.username;
-    		var pwd = parsedUrl.query.password;
-    		var auth = require('./user/auth.js');
-    		auth.register(guid(), un, pwd, function(data) {
-    			res.end(data);
-    		});
-    	}
-    	break;
-
-    	case '/user/login':
-    	{
-    		var un = parsedUrl.query.username;
-    		var pwd = parsedUrl.query.password;
-    		var auth = require('./user/auth.js');
-    		auth.login(un, pwd, function(data) {
-    			res.writeHead(data.status);
-    			res.end(JSON.stringify(data));
     		});
     	}
     	break;
@@ -120,3 +98,50 @@ function sendResponse(res, status, msg) {
 	console.log((new Date()) + ' ' + msg);
 	res.end(msg);
 }
+
+// https server
+var options = {
+	key: fs.readFileSync('private.pem'),
+	cert: fs.readFileSync('public.pem'),
+	passphrase: 'M9l0d6539684'
+};
+
+var a = https.createServer(options, function(req, res) {
+	var parsedUrl = url.parse(req.url, true);
+    var pathname = parsedUrl.pathname;
+	console.log('https serving: ' + pathname);
+
+    switch(pathname) {
+		case '/user/register':
+    	{
+    		var un = parsedUrl.query.username;
+    		var pwd = parsedUrl.query.password;
+    		var auth = require('./user/auth.js');
+    		console.log('registering username=' + un + ' password=' + pwd);
+    		auth.register(guid(), un, pwd, function(data) {
+    			var msg = JSON.stringify(data);
+    			console.log('register result:' + msg);
+    			res.writeHead(data.status);
+    			res.end(msg);
+    		});
+    	}
+    	break;
+
+    	case '/user/login':
+    	{
+    		var un = parsedUrl.query.username;
+    		var pwd = parsedUrl.query.password;
+    		var auth = require('./user/auth.js');
+    		console.log('logging in username=' + un + ' password=' + pwd);
+    		auth.login(un, pwd, function(data) {
+    			var msg = JSON.stringify(data);
+    			console.log('login result:' + msg);
+    			res.writeHead(data.status);
+    			res.end(msg);
+    		});
+    	}
+    	break;
+    }
+}).listen(443);
+
+console.log("https server listening at 443");

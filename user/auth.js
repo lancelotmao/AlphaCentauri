@@ -10,9 +10,9 @@ exports.register = function(uuid, username, password, callback) {
         console.log('register SQL: ' + sql);
         db.connection.query(sql, function(err, rows, fields){
             if (err) {
-                callback(err);
+                callback({status:405,"msg":err});
             } else { 
-                callback(JSON.stringify({uuid:uuid}));
+                callback({status:200,uuid:uuid});
             }
         });
     }
@@ -30,7 +30,7 @@ exports.login = function(username, password, callback) {
             } else if (rows.length == 0) { 
                 callback({status:405});
             } else {
-                callback({status:200, uuid:rows[0].uuid, name:rows[0].name});
+                callback({status:200, uuid:rows[0].uuid});
             }
         });
     }
