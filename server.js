@@ -5,6 +5,7 @@ var http = require('http');
 var https = require('https');
 var url = require("url");
 var fs = require('fs');
+var auth = require('./user/auth.js');
 var createApp = require('./createapp.js');
 
 if (!fs.existsSync('apps')) {
@@ -28,6 +29,12 @@ http.createServer(function (req, res) {
     			res.end(data);
     		});
 		}
+	    break;
+
+	    case '/publicKey':
+	    auth.getPublicKey(function(data) {
+	    	res.end(data);
+	    })
 	    break;
 
 	    case '/user/register':
@@ -55,7 +62,6 @@ http.createServer(function (req, res) {
     	switch (parsedUrl.pathname) {
     		case '/user/register':
 	    	{
-	    		var auth = require('./user/auth.js');
 	    		try {
 		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
 		    		var un = decrypted.username;
@@ -77,7 +83,6 @@ http.createServer(function (req, res) {
 	    	{
 	    		var un = parsedUrl.query.username;
 	    		var pwd = parsedUrl.query.password;
-	    		var auth = require('./user/auth.js');
 	    		try {
 		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
 		    		var un = decrypted.username;

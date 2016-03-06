@@ -12,6 +12,12 @@ exports.rsaDecrypt = function(msg) {
     return msg;
 }
 
+exports.getPublicKey = function(callback) {
+    fs.readFile('./public.key', function(err, data) {
+        callback(data);
+    });
+}
+
 exports.register = function(uuid, username, password, callback) {
     if (username == null || password == null) {
         callback({status:405,"msg":'username, password cannot be null'});
