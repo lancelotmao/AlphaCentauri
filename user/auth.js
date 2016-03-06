@@ -1,9 +1,20 @@
 var db = require('./../db.js');
-var fs = require('fs');
+var fs = require('fs')
+var ursa = require('ursa');
+
+var key = ursa.createPrivateKey(fs.readFileSync('./private.key'), '!QAZ2wsx');
+var crt = ursa.createPublicKey(fs.readFileSync('./public.key'));
+
+exports.rsaDecrypt = function(msg) {
+    console.log('decrypting: ' + msg);
+    var msg = key.decrypt(msg, 'base64', 'utf8');
+    console.log('decrypted:', msg, '\n');
+    return msg;
+}
 
 exports.register = function(uuid, username, password, callback) {
     if (username == null || password == null) {
-        callback('username, password cannot be null');
+        callback({status:405,"msg":'username, password cannot be null'});
     } else {
         var sql = "INSERT INTO common.user (uuid, name, password, createdAt) VALUES ("
         + "\'" + uuid + "\'," + "\'" + username + "\', " + "\'" + password + "\'," + "now()" + ");";
@@ -12,7 +23,7 @@ exports.register = function(uuid, username, password, callback) {
             if (err) {
                 callback({status:405,"msg":err});
             } else { 
-                callback({status:200,uuid:uuid});
+                genAccessToken(uuid, callback);
             }
         });
     }
@@ -30,8 +41,44 @@ exports.login = function(username, password, callback) {
             } else if (rows.length == 0) { 
                 callback({status:405});
             } else {
-                callback({status:200, uuid:rows[0].uuid});
+                genAccessToken(rows[0].uuid, callback);
             }
         });
     }
+}
+
+function genAccessToken(uuid, callback) {
+    var now = '' + new Date();
+    var data = JSON.stringify({uuid:uuid});
+    console.log('gen access token for: ' + data);;
+
+    var encrypted = encrypt(data);
+
+    var sql = "UPDATE common.user SET accessToken=" + "\'" + encrypted + "\', updatedAt=now() where uuid=" + "\'" + uuid + "\';";
+    console.log('genAccessToken SQL: ' + sql);
+    db.connection.query(sql, function(err, rows, fields){
+        if (err) {
+            callback({status:405,"msg":err});
+        } else { 
+            callback({status:200,uuid:uuid, accessToken:encrypted});
+        }
+    });
+}
+
+var crypto = require('crypto'),
+    algorithm = 'aes-128-ctr',
+    password = 'd6F3Efeq';
+
+function encrypt(text){
+  var cipher = crypto.createCipher(algorithm,password)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+ 
+function decrypt(text){
+  var decipher = crypto.createDecipher(algorithm,password)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
 }

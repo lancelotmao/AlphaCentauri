@@ -18,14 +18,20 @@ http.createServer(function (req, res) {
 	// get App ID
 	var appid = parsedUrl.query.appid;
 
+	var postData = "";
+
 	switch (pathname) {
-    	case '/createapp':
+		case '/createapp':
     	{
     		createApp.create(guid(), function(data) {
     			console.log('create app result: ' + data);
     			res.end(data);
     		});
 		}
+	    break;
+
+	    case '/user/register':
+	    case '/user/login':
 	    break;
 
 	    default:
@@ -38,34 +44,56 @@ http.createServer(function (req, res) {
     		case "/upload":
         	fs.appendFileSync(bundlePath, postDataChunk);
 	        break;
+
+	        default:
+	        postData += postDataChunk;
+	        break;
         }
     });
 
     req.on("end", function () {
     	switch (parsedUrl.pathname) {
-    		case '/upload':
-    		{
-    			msg = 'Upload success';
-	        }
-    		break;
+    		case '/user/register':
+	    	{
+	    		var auth = require('./user/auth.js');
+	    		try {
+		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
+		    		var un = decrypted.username;
+		    		var pwd = decrypted.password;
+		    		console.log('registering username=' + un + ' password=' + pwd);
+		    		auth.register(guid(), un, pwd, function(data) {
+		    			var msg = JSON.stringify(data);
+		    			console.log('register result:' + msg);
+		    			res.writeHead(data.status);
+		    			res.end(msg);
+		    		});
+		    	} catch(e) {
+		    		res.end('register failed. unknown error');
+		    	}
+	    	}
+	    	break;
 
-    		case '/version':
-    		{
-    			
-    		}
-    		break;
-
-    		case '/versions':
-    		{
-    			
-    		}
-    		break;
-
-    		case '/download':
-		    {
-		    	
-		    }
-		    break;
+	    	case '/user/login':
+	    	{
+	    		var un = parsedUrl.query.username;
+	    		var pwd = parsedUrl.query.password;
+	    		var auth = require('./user/auth.js');
+	    		try {
+		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
+		    		var un = decrypted.username;
+		    		var pwd = decrypted.password;
+		    		console.log('logging in username=' + un + ' password=' + pwd);
+		    		auth.login(un, pwd, function(data) {
+		    			var msg = JSON.stringify(data);
+		    			console.log('login result:' + msg);
+		    			res.writeHead(data.status);
+		    			res.end(msg);
+		    		});
+		    	} catch(e) {
+		    		res.end('login failed. unknown error');
+		    	}
+	    	}
+	    	break;
 
 		    default:
 		    status = 404;
@@ -94,14 +122,6 @@ function homePage(path, res) {
 		console.log('' + data);
 		res.end(data);
 	});
-}
-
-function sendResponse(res, status, msg) {
-	res.writeHead(status, {
-	    "Content-Type": "text/plain;charset=utf-8"
-	});
-	console.log((new Date()) + ' ' + msg);
-	res.end(msg);
 }
 
 // https server

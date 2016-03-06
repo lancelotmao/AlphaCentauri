@@ -1,6 +1,4 @@
 git pull
-forever stop mpm.js
-forever start mpm.js
-forever stop lara.js
-forever start lara.js
+forever stop server.js
+forever start server.js
 forever list
