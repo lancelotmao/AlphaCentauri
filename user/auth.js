@@ -53,6 +53,24 @@ exports.login = function(username, password, callback) {
     }
 }
 
+exports.logout = function(username, callback) {
+    if (username == null || password == null) {
+        callback('username, password cannot be null');
+    } else {
+        var sql = "select * from common.user where name=\'" + username + "\';"; 
+        console.log('logout SQL: ' + sql);
+        db.connection.query(sql, function(err, rows, fields){
+            if (err) {
+                callback({status:500, msg:err});
+            } else if (rows.length == 0) { 
+                callback({status:405});
+            } else {
+                removeAccessToken(rows[0].uuid, callback);
+            }
+        });
+    }
+}
+
 function genAccessToken(uuid, callback) {
     var now = '' + new Date();
     var data = JSON.stringify({uuid:uuid});
@@ -62,6 +80,24 @@ function genAccessToken(uuid, callback) {
 
     var sql = "UPDATE common.user SET accessToken=" + "\'" + encrypted + "\', updatedAt=now() where uuid=" + "\'" + uuid + "\';";
     console.log('genAccessToken SQL: ' + sql);
+    db.connection.query(sql, function(err, rows, fields){
+        if (err) {
+            callback({status:405,"msg":err});
+        } else { 
+            callback({status:200,uuid:uuid, accessToken:encrypted});
+        }
+    });
+}
+
+function removeAccessToken(uuid, callback) {
+    var now = '' + new Date();
+    var data = JSON.stringify({uuid:uuid});
+    console.log('remove access token for: ' + data);;
+
+    var encrypted = encrypt(data);
+
+    var sql = "UPDATE common.user SET accessToken=\'\', updatedAt=now() where uuid=" + "\'" + uuid + "\';";
+    console.log('removeAccessToken SQL: ' + sql);
     db.connection.query(sql, function(err, rows, fields){
         if (err) {
             callback({status:405,"msg":err});

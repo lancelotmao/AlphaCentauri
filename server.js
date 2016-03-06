@@ -39,6 +39,7 @@ http.createServer(function (req, res) {
 
 	    case '/user/register':
 	    case '/user/login':
+	    case '/user/logout':
 	    break;
 
 	    default:
@@ -81,8 +82,6 @@ http.createServer(function (req, res) {
 
 	    	case '/user/login':
 	    	{
-	    		var un = parsedUrl.query.username;
-	    		var pwd = parsedUrl.query.password;
 	    		try {
 		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
 		    		var un = decrypted.username;
@@ -91,6 +90,24 @@ http.createServer(function (req, res) {
 		    		auth.login(un, pwd, function(data) {
 		    			var msg = JSON.stringify(data);
 		    			console.log('login result:' + msg);
+		    			res.writeHead(data.status);
+		    			res.end(msg);
+		    		});
+		    	} catch(e) {
+		    		res.end('login failed. unknown error');
+		    	}
+	    	}
+	    	break;
+
+	    	case '/user/logout':
+	    	{
+	    		try {
+		    		var decrypted = JSON.parse(auth.rsaDecrypt(postData));
+		    		var un = decrypted.username;
+		    		console.log('logging out username=' + un);
+		    		auth.logout(un, function(data) {
+		    			var msg = JSON.stringify(data);
+		    			console.log('logout result:' + msg);
 		    			res.writeHead(data.status);
 		    			res.end(msg);
 		    		});
