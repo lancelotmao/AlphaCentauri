@@ -10,6 +10,7 @@ var fs = require('fs')
   ;
 
 var HOST = '127.0.0.1';
+var HOST = 'www.wecloudapp.com';
 
 crt = ursa.createPublicKey(fs.readFileSync('./../public.key'));
 

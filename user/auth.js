@@ -102,7 +102,7 @@ function removeAccessToken(uuid, callback) {
         if (err) {
             callback({status:405,"msg":err});
         } else { 
-            callback({status:200,uuid:uuid, accessToken:encrypted});
+            callback({status:200,uuid:uuid});
         }
     });
 }
