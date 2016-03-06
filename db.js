@@ -1,12 +1,15 @@
 var mysql = require('mysql');
 
-exports.connection = mysql.createConnection({
+var pool = mysql.createPool({
+    connectionLimit : 100, //important
     host: '120.25.219.17',
     port: 3306,
     user: 'lara',
     password: '!QAZ2wsx'
 });
 
-try {
-    connection.connect();
-} catch(e) {}
+exports.getConnection = function(callback) {
+    pool.getConnection(function(err, connection) {
+        callback(connection);
+    });
+}

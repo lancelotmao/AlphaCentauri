@@ -25,12 +25,14 @@ exports.register = function(uuid, username, password, callback) {
         var sql = "INSERT INTO common.user (uuid, name, password, createdAt) VALUES ("
         + "\'" + uuid + "\'," + "\'" + username + "\', " + "\'" + password + "\'," + "now()" + ");";
         console.log('register SQL: ' + sql);
-        db.connection.query(sql, function(err, rows, fields){
-            if (err) {
-                callback({status:405,"msg":err});
-            } else { 
-                genAccessToken(uuid, callback);
-            }
+        db.getConnection(function(connection) {
+            connection.query(sql, function(err, rows, fields){
+                if (err) {
+                    callback({status:405,"msg":err});
+                } else { 
+                    genAccessToken(uuid, callback);
+                }
+            });
         });
     }
 }
@@ -41,14 +43,16 @@ exports.login = function(username, password, callback) {
     } else {
         var sql = "select * from common.user where name=\'" + username + "\' AND password=\'" + password + "\';"; 
         console.log('login SQL: ' + sql);
-        db.connection.query(sql, function(err, rows, fields){
-            if (err) {
-                callback({status:500, msg:err});
-            } else if (rows.length == 0) { 
-                callback({status:405});
-            } else {
-                genAccessToken(rows[0].uuid, callback);
-            }
+        db.getConnection(function(connection) {
+            connection.query(sql, function(err, rows, fields) {
+                if (err) {
+                    callback({status:500, msg:err});
+                } else if (rows.length == 0) { 
+                    callback({status:405});
+                } else {
+                    genAccessToken(rows[0].uuid, callback);
+                }
+            });
         });
     }
 }
@@ -59,14 +63,16 @@ exports.logout = function(username, callback) {
     } else {
         var sql = "select * from common.user where name=\'" + username + "\';"; 
         console.log('logout SQL: ' + sql);
-        db.connection.query(sql, function(err, rows, fields){
-            if (err) {
-                callback({status:500, msg:err});
-            } else if (rows.length == 0) { 
-                callback({status:405});
-            } else {
-                removeAccessToken(rows[0].uuid, callback);
-            }
+        db.getConnection(function(connection) {
+            connection.query(sql, function(err, rows, fields){
+                if (err) {
+                    callback({status:500, msg:err});
+                } else if (rows.length == 0) { 
+                    callback({status:405});
+                } else {
+                    removeAccessToken(rows[0].uuid, callback);
+                }
+            });
         });
     }
 }
@@ -80,12 +86,14 @@ function genAccessToken(uuid, callback) {
 
     var sql = "UPDATE common.user SET accessToken=" + "\'" + encrypted + "\', updatedAt=now() where uuid=" + "\'" + uuid + "\';";
     console.log('genAccessToken SQL: ' + sql);
-    db.connection.query(sql, function(err, rows, fields){
-        if (err) {
-            callback({status:405,"msg":err});
-        } else { 
-            callback({status:200,uuid:uuid, accessToken:encrypted});
-        }
+    db.getConnection(function(connection) {
+        connection.query(sql, function(err, rows, fields){
+            if (err) {
+                callback({status:405,"msg":err});
+            } else { 
+                callback({status:200,uuid:uuid, accessToken:encrypted});
+            }
+        });
     });
 }
 
@@ -98,12 +106,14 @@ function removeAccessToken(uuid, callback) {
 
     var sql = "UPDATE common.user SET accessToken=\'\', updatedAt=now() where uuid=" + "\'" + uuid + "\';";
     console.log('removeAccessToken SQL: ' + sql);
-    db.connection.query(sql, function(err, rows, fields){
-        if (err) {
-            callback({status:405,"msg":err});
-        } else { 
-            callback({status:200,uuid:uuid});
-        }
+    db.getConnection(function(connection) {
+        connection.query(sql, function(err, rows, fields){
+            if (err) {
+                callback({status:405,"msg":err});
+            } else { 
+                callback({status:200,uuid:uuid});
+            }
+        });
     });
 }
 
