@@ -60,114 +60,118 @@ http.createServer(function (req, res) {
   });
 
   req.on("end", function () {
-    var status = 200;
-    var msg;
+    try {
+      var status = 200;
+      var msg;
 
-    // console.log('postData: ' + postData);
-    var postObj;
-    if (postData != null) {
-      try {
-        postObj = JSON.parse(postData);
-        appid = postObj['appid'];
-      } catch(e) {
-        console.log(e);
-      }
-    }
-    
-    switch (parsedUrl.pathname) {
-      case '/weissue/api/users':
-      { 
-        if (appid) {
-          db.getUsers(appid, function(data) {
-            sendResponse(res, status, data);
-          });
-        } else {
-            sendResponse(res, status, 'must specify appid');
+      // console.log('postData: ' + postData);
+      var postObj;
+      if (postData != null) {
+        try {
+          postObj = JSON.parse(postData);
+          appid = postObj['appid'];
+        } catch(e) {
+          console.log(e);
         }
       }
-      break;
+      
+      switch (parsedUrl.pathname) {
+        case '/weissue/api/users':
+        { 
+          if (appid) {
+            db.getUsers(appid, function(data) {
+              sendResponse(res, status, data);
+            });
+          } else {
+              sendResponse(res, status, 'must specify appid');
+          }
+        }
+        break;
 
-      case '/weissue/api/create':
-      {
-        var title = postObj['title'];
-        var description = postObj['description'];
-        var submittedBy = postObj['submittedBy'];
-        var handler = postObj['handler'];
-        var versionCode = postObj['versionCode'];
-        db.create(title, description, submittedBy, handler, appid, versionCode, function(data) {
-          sendResponse(res, status, data);
-        });
-      }
-      break;
+        case '/weissue/api/create':
+        {
+          var title = postObj['title'];
+          var description = postObj['description'];
+          var submittedBy = postObj['submittedBy'];
+          var handler = postObj['handler'];
+          var versionCode = postObj['versionCode'];
+          db.create(title, description, submittedBy, handler, appid, versionCode, function(data) {
+            sendResponse(res, status, data);
+          });
+        }
+        break;
 
-      case '/weissue/api/list':
-      {
-        db.list(appid, function(data) {
-          sendResponse(res, status, data);
-        });
-      }
-      break;
+        case '/weissue/api/list':
+        {
+          db.list(appid, function(data) {
+            sendResponse(res, status, data);
+          });
+        }
+        break;
 
-      case "/weissue/api/upload_screenshot":
-      {
-        db.uploadScreenshot(issueID, function(data){
-          msg = data;
-          sendResponse(res, status, msg);
-        });
-      }
-      break;
+        case "/weissue/api/upload_screenshot":
+        {
+          db.uploadScreenshot(issueID, function(data){
+            msg = data;
+            sendResponse(res, status, msg);
+          });
+        }
+        break;
 
-      case "/weissue/api/download_screenshot":
-      {
-        var ssdir = 'screenshot/' + issueID;
-        if (fs.existsSync(ssdir)) {
-          var ss = fs.readdirSync(ssdir);
-          if (ss.length == 0) {
+        case "/weissue/api/download_screenshot":
+        {
+          var ssdir = 'screenshot/' + issueID;
+          if (fs.existsSync(ssdir)) {
+            var ss = fs.readdirSync(ssdir);
+            if (ss.length == 0) {
+              status = 404;
+              msg = 'screen shot download failed: ' + issueID;
+              sendResponse(res, status, msg);
+            } else {
+              finished = false;
+              var path = ssdir + '/' + ss[0];
+              console.log('downloading screen shot: ' + path);
+              fs.readFile(path, "binary", function (err, file) {
+                if (err) {
+                  status = 404;
+                  msg = 'download failed: ' + path;
+                  res.writeHead(status, {
+                    "Content-Type": "text/plain;charset=utf-8"
+                  });
+                  res.end(msg);
+                } else {
+                  res.writeHead(status, {
+                    "Content-Type": "application/octet-stream",
+                    "Content-Length": fs.statSync(path)['size']
+                  });
+                  res.write(file, "binary");
+                  msg = 'download success';
+                  res.end();
+                }
+              });
+            }
+          } else {
             status = 404;
             msg = 'screen shot download failed: ' + issueID;
             sendResponse(res, status, msg);
-          } else {
-            finished = false;
-            var path = ssdir + '/' + ss[0];
-            console.log('downloading screen shot: ' + path);
-            fs.readFile(path, "binary", function (err, file) {
-              if (err) {
-                status = 404;
-                msg = 'download failed: ' + path;
-                res.writeHead(status, {
-                  "Content-Type": "text/plain;charset=utf-8"
-                });
-                res.end(msg);
-              } else {
-                res.writeHead(status, {
-                  "Content-Type": "application/octet-stream",
-                  "Content-Length": fs.statSync(path)['size']
-                });
-                res.write(file, "binary");
-                msg = 'download success';
-                res.end();
-              }
-            });
           }
-        } else {
-          status = 404;
-          msg = 'screen shot download failed: ' + issueID;
-          sendResponse(res, status, msg);
         }
-      }
-      break;
+        break;
 
-      case '/weissue/api/screenshotList':
-      {
-        db.screenshotList(issueID, function(data) {
-          sendResponse(res, status, JSON.stringify(data));
-        });
-      }
-      break;
+        case '/weissue/api/screenshotList':
+        {
+          db.screenshotList(issueID, function(data) {
+            sendResponse(res, status, JSON.stringify(data));
+          });
+        }
+        break;
 
-      default:
-      console.log('path not valid: ' + pathname);
-      break;
+        default:
+        console.log('path not valid: ' + pathname);
+        break;
+      }
+    }catch(ex) {
+      console.log('Exception: ' + ex);
     }
   });
 }).listen(7000);
