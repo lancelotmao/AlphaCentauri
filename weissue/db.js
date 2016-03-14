@@ -39,14 +39,25 @@ exports.getUsers = function(appid, callback) {
     });
 }
 
-exports.create = function(title, description, submittedBy, handler, appid, versionCode, callback) {
+exports.create = function(appid, postObj, callback) {
+    var title = postObj['title'];
+    var description = postObj['description'];
+    var submittedBy = postObj['submittedBy'];
+    var handler = postObj['handler'];
+    var versionCode = postObj['versionCode'];
+    var deviceModel = postObj['deviceModel'];
+    var osVersion = postObj['osVersion'];
+    var controller = postObj['controller'];
+    var network = postObj['network'];
+    var memory = postObj['memory'];
+    var language = postObj['language'];
     if (title == null || description == null || submittedBy == null || handler == null || appid == null || versionCode == null) {
         callback('title, description, submittedBy, handler, appid, versionCode cannot be null');
     } else {
         var uuid = guid();
-        var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, handler, status, appid, versionCode, createdAt) VALUES ("
+        var sql = "INSERT INTO weissue.issue (uid, title, description, submittedBy, handler, status, appid, versionCode, deviceModel, osVersion, controller, network, memory, language, createdAt) VALUES ("
         + "\'" + uuid + "\'," + "\'" + title + "\', " + "\'" + description + "\'," + "\'" + submittedBy + "\', " + "\'" + handler + "\', " + "\'open\'," + "\'" + appid + "\',"
-        + "\'" + versionCode + "\'," + "now()" + ");"; 
+        + "\'" + versionCode + "\'," + "\'" + deviceModel + "\'," + "\'" + osVersion + "\'," + "\'" + controller + "\'," + "\'" + network + "\'," + "\'" + memory + "\'," + "\'" + language + "\'," + "now()" + ");"; 
         connection.query(sql, function(err, rows, fields){
             if (err) {
                 console.log(err);

@@ -1,5 +1,18 @@
 
-var data = {title: 'I found an issue', description: 'this is a naughty bug', submittedBy: 'tester', handler: 'lance', appid: 'jupiter', versionCode:'1'}
+var data = {
+      title: 'I found an issue',
+      description: 'this is a naughty bug', 
+      submittedBy: 'tester', 
+      handler: 'lance', 
+      appid: 'jupiter', 
+      versionCode:'1',
+      deviceModel:'iPhone 6+',
+      osVesion:'iOS 9.2',
+      controller:'DemoViewController',
+      network:'WIFI',
+      memory:'30M/1024M',
+      language:'en-US',
+}
 var listParam = {appid: 'jupiter'};
 /*
  * test for http
@@ -31,6 +44,7 @@ var req = http.request(options, function(res) {
       });
 });
 
+console.log(JSON.stringify(data));
 req.end(JSON.stringify(data));
 
 function listIssues() {

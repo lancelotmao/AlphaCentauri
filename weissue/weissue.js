@@ -90,14 +90,13 @@ http.createServer(function (req, res) {
 
         case '/weissue/api/create':
         {
-          var title = postObj['title'];
-          var description = postObj['description'];
-          var submittedBy = postObj['submittedBy'];
-          var handler = postObj['handler'];
-          var versionCode = postObj['versionCode'];
-          db.create(title, description, submittedBy, handler, appid, versionCode, function(data) {
-            sendResponse(res, status, data);
-          });
+          if (postObj == null) {
+            sendResponse(res, status, JSON.stringify({status:405,msg:'post data is NULL'}));
+          } else {
+            db.create(appid, postObj, function(data) {
+              sendResponse(res, status, data);
+            });
+          }
         }
         break;
 
